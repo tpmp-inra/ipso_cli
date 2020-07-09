@@ -1,13 +1,12 @@
 import sys
 import argparse
-
-sys.path.append("./ipapi")
-
+import logging
 
 from ipapi.base.pipeline_launcher import launch
 
 
-if __name__ == "__main__":
+def exec_cli():
+
     parser = argparse.ArgumentParser(description="Run a pipeline on target")
     parser.add_argument(
         "-s",
@@ -40,5 +39,24 @@ if __name__ == "__main__":
         help="Override number of concurrent processes",
         default=None,
     )
+    parser.add_argument(
+        "-o",
+        "--output_folder",
+        required=False,
+        help="CSV and data output folder",
+        default=None,
+    )
+    parser.add_argument(
+        "-f", "--csv_file_name", required=False, help="Merged CSV file name", default=None
+    )
 
-    sys.exit(launch(**vars(parser.parse_args())))
+    args = vars(parser.parse_args())
+    logger = logging.getLogger(__name__)
+    for k, v in args.items():
+        logger.info(f"{k}: {v}")
+
+    return launch(**args)
+
+
+if __name__ == "__main__":
+    sys.exit(exec_cli())

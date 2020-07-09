@@ -1,0 +1,23 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Python: Debug IPSO CLI",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/ipso_cli.py",
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}",
+      "args": [
+        "-sC:\\Users\\fmavianemac\\Documents\\ipso_phen_data\\pipeline_state\\test_heliaphen.json"
+        // "-iC:\\Users\\fmavianemac\\Pictures\\ipso_phen_cache\\heliasen\\18hp01\\18HP01U02-CAM11-20180702094650.bmp",
+        // "-pC:\\Users\\fmavianemac\\Documents\\ipso_phen_data\\pipelines\\heliasen_qc_v2.json",
+        // "-otest_output",
+        // "-ftest_file"
+      ]
+    }
+  ]
+}
