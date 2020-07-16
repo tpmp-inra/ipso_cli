@@ -49,6 +49,13 @@ def exec_cli():
     parser.add_argument(
         "-f", "--csv_file_name", required=False, help="Merged CSV file name", default=None
     )
+    parser.add_argument(
+        "-w",
+        "--overwrite",
+        required=False,
+        help="Overwrite existing partial files",
+        default=False,
+    )
 
     args = vars(parser.parse_args())
     logger = logging.getLogger(__name__)

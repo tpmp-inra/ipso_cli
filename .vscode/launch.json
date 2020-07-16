@@ -12,7 +12,9 @@
       "console": "integratedTerminal",
       "cwd": "${workspaceFolder}",
       "args": [
-        "-sC:\\Users\\fmavianemac\\Documents\\ipso_phen_data\\pipeline_state\\test_heliaphen.json"
+        "-sC:\\Users\\fmavianemac\\Documents\\ipso_phen_data\\pipeline_state\\25ac_atsys2_2003.json",
+        "-c1",
+        "-wTrue"
         // "-iC:\\Users\\fmavianemac\\Pictures\\ipso_phen_cache\\heliasen\\18hp01\\18HP01U02-CAM11-20180702094650.bmp",
         // "-pC:\\Users\\fmavianemac\\Documents\\ipso_phen_data\\pipelines\\heliasen_qc_v2.json",
         // "-otest_output",
