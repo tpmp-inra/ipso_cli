@@ -5,21 +5,39 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Python: Current File",
+      "type": "python",
+      "request": "launch",
+      "program": "${file}",
+      "console": "integratedTerminal"
+    },
+    {
       "name": "Python: Debug IPSO CLI",
       "type": "python",
       "request": "launch",
       "program": "${workspaceFolder}/ipso_cli.py",
       "console": "integratedTerminal",
       "cwd": "${workspaceFolder}",
-      "args": [
-        "-sC:\\Users\\fmavianemac\\Documents\\ipso_phen_data\\pipeline_state\\25ac_atsys2_2003.json",
-        "-c1",
-        "-wTrue"
-        // "-iC:\\Users\\fmavianemac\\Pictures\\ipso_phen_cache\\heliasen\\18hp01\\18HP01U02-CAM11-20180702094650.bmp",
-        // "-pC:\\Users\\fmavianemac\\Documents\\ipso_phen_data\\pipelines\\heliasen_qc_v2.json",
-        // "-otest_output",
-        // "-ftest_file"
-      ]
+      "windows": {
+        "args": [
+          // ATSYS
+          // "--stored-state",
+          // "C:\\Users\\fmavianemac\\Documents\\ipso_phen_data\\pipeline_state\\25ac_atsys2_2003.json",
+          // "--thread-count",
+          // "1",
+          // "--overwrite"
+          // HELIASEN
+          "--image",
+          "C:\\Users\\fmavianemac\\Pictures\\ipso_phen_cache\\heliasen\\18hp01\\18HP01U02-CAM11-20180702094650.bmp",
+          "--script",
+          "C:\\Users\\fmavianemac\\Documents\\ipso_phen_data\\pipelines\\heliasen_qc_v2.json",
+          "--output-folder",
+          "test_output",
+          "--csv-file-name",
+          "test_file",
+          "--overwrite"
+        ]
+      }
     }
   ]
 }

@@ -132,3 +132,6 @@ dmypy.json
 # My things
 stored_data/
 logs/
+test_output/18HP01U02-CAM11-20180702094650_image_mask.bmp
+test_output/partials/18HP01U02-CAM11-20180702094650_result.csv
+test_output/test_file.csv
