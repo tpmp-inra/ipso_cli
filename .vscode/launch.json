@@ -26,6 +26,7 @@
           // "--thread-count",
           // "1",
           // "--overwrite"
+          //
           // HELIASEN
           "--image",
           "C:\\Users\\fmavianemac\\Pictures\\ipso_phen_cache\\heliasen\\18hp01\\18HP01U02-CAM11-20180702094650.bmp",
@@ -36,6 +37,11 @@
           "--csv-file-name",
           "test_file",
           "--overwrite"
+          //
+          // MAPPI
+          // "--stored-state",
+          // "C:\\Users\\fmavianemac\\Documents\\ipso_phen_data\\pipeline_state\\mappi5.json"
+          //
         ]
       }
     }
