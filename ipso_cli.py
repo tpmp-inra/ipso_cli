@@ -12,9 +12,10 @@ logging.basicConfig(
     level=logging.INFO,
     format="[%(asctime)s - %(name)s - %(levelname)s] - %(message)s",
 )
-logger = logging.getLogger("IPSO CLI entry unit")
+logger = logging.getLogger("IPSO CLI")
 logger.info("_________________________________________________________________________")
-logger.info("Launching IPSO CLI as a module...")
+logger.info("_________________________________________________________________________")
+logger.info("Launching IPSO CLI")
 
 from ipapi.base.pipeline_launcher import launch
 
@@ -82,6 +83,28 @@ def exec_cli():
         help="Overwrite existing partial files",
         action="store_true",
         dest="overwrite",
+    )
+    parser.add_argument(
+        "--build-annotation-csv",
+        required=False,
+        help="Build annotation ready CSV",
+        action="store_true",
+        dest="build_annotation_csv",
+    )
+    parser.add_argument(
+        "--generate-series-id",
+        required=False,
+        help="Generate series id, group plants by close timestamp",
+        action="store_true",
+        dest="generate_series_id",
+    )
+    parser.add_argument(
+        "--series-id-delta",
+        required=False,
+        help="Images of an item taken within minutes of time delta will have the same series id",
+        default=None,
+        type=int,
+        dest="series_id_time_delta",
     )
 
     args = vars(parser.parse_args())

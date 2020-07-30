@@ -28,19 +28,25 @@
           // "--overwrite"
           //
           // HELIASEN
-          "--image",
-          "C:\\Users\\fmavianemac\\Pictures\\ipso_phen_cache\\heliasen\\18hp01\\18HP01U02-CAM11-20180702094650.bmp",
-          "--script",
-          "C:\\Users\\fmavianemac\\Documents\\ipso_phen_data\\pipelines\\heliasen_qc_v2.json",
-          "--output-folder",
-          "test_output",
-          "--csv-file-name",
-          "test_file",
-          "--overwrite"
+          // "--image",
+          // "C:\\Users\\fmavianemac\\Pictures\\ipso_phen_cache\\heliasen\\18hp01\\18HP01U02-CAM11-20180702094650.bmp",
+          // "--script",
+          // "C:\\Users\\fmavianemac\\Documents\\ipso_phen_data\\pipelines\\heliasen_qc_v2.json",
+          // "--output-folder",
+          // "test_output",
+          // "--csv-file-name",
+          // "test_file",
+          // "--overwrite"
           //
           // MAPPI
-          // "--stored-state",
-          // "C:\\Users\\fmavianemac\\Documents\\ipso_phen_data\\pipeline_state\\mappi5.json"
+          "--stored-state",
+          "C:\\Users\\fmavianemac\\Documents\\ipso_phen_data\\pipeline_state\\mappi5.json",
+          "--generate-series-id",
+          "--series-id-delta",
+          "20",
+          "--build-annotation-csv",
+          "--thread-count",
+          "3"
           //
         ]
       }
