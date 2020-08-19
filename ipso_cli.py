@@ -20,6 +20,16 @@ logger.info("Launching IPSO CLI")
 from ipapi.base.pipeline_launcher import launch
 
 
+class StoreTrueOnly(argparse.Action):
+    def __init__(self, option_strings, dest, nargs=0, **kwargs):
+        super(StoreTrueOnly, self).__init__(
+            option_strings=option_strings, nargs=nargs, dest=dest, **kwargs
+        )
+
+    def __call__(self, parser, namespace, values, option_string=None):
+        setattr(namespace, self.dest, True)
+
+
 def exec_cli():
 
     parser = argparse.ArgumentParser(
@@ -81,21 +91,22 @@ def exec_cli():
         "--overwrite",
         required=False,
         help="Overwrite existing partial files",
-        action="store_true",
+        action=StoreTrueOnly,
         dest="overwrite",
     )
     parser.add_argument(
         "--build-annotation-csv",
         required=False,
         help="Build annotation ready CSV",
-        action="store_true",
+        action=StoreTrueOnly,
         dest="build_annotation_csv",
+        nargs=0,
     )
     parser.add_argument(
         "--generate-series-id",
         required=False,
         help="Generate series id, group plants by close timestamp",
-        action="store_true",
+        action=StoreTrueOnly,
         dest="generate_series_id",
     )
     parser.add_argument(

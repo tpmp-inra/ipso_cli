@@ -39,15 +39,21 @@
           // "--overwrite"
           //
           // MAPPI
-          "--stored-state",
-          "C:\\Users\\fmavianemac\\Documents\\ipso_phen_data\\pipeline_state\\mappi5.json",
-          "--generate-series-id",
-          "--series-id-delta",
-          "20",
-          "--build-annotation-csv",
-          "--thread-count",
-          "3"
+          // "--stored-state",
+          // "C:\\Users\\fmavianemac\\Documents\\ipso_phen_data\\pipeline_state\\mappi5.json",
+          // "--generate-series-id",
+          // "--series-id-delta",
+          // "20",
+          // "--build-annotation-csv",
+          // "--thread-count",
+          // "3"
           //
+          // Super crop
+          "--stored-state",
+          "C:\\Users\\fmavianemac\\Documents\\ipso_phen_data\\pipeline_state\\super_crop.json"
+          // "--build-annotation-csv",
+          // "--thread-count",
+          // "1"
         ]
       }
     }
