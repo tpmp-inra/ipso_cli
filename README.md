@@ -2,6 +2,8 @@
 
 <blockquote class="twitter-tweet"><p lang="en" dir="ltr">Remember, a few hours of trial and error can save you several minutes of looking at the README.</p>&mdash; I Am Devloper (@iamdevloper) <a href="https://twitter.com/iamdevloper/status/1060067235316809729?ref_src=twsrc%5Etfw">November 7, 2018</a></blockquote>
 
+<br>
+
 IPSO CLI is a command line interface used to run pipelines created with [IPSO Phen](https://github.com/tpmp-inra/ipso_phen) on images
 
 ## Getting Started
@@ -62,8 +64,8 @@ Other overrides include that can also be used as separated parameters :
 
 - **Thread count override**: --thread-count, number of concurrent analysis. The default value is set to 1. Avoid setting this value over the available threads of your computer.
 - **Overwrite**: --overwrite, overwrite existing partial analysis, set by default to false. When analyzing images, IPSO Phen writes every image's analysis result to a different partial file, this way if the analysis must be interrupted almost nothing is lost.
-- **Build annotation ready CSV**: --build-annotation-csv", if true a CSV file for disease index annotation will be generated.
-- **Generate series id, group plants by close timestamp**: --generate-series-id", if true each row of the final csv will be annotated to tag all photos of each plant taking in an amount of time. When every plant is captured multiple times each time -for example, multiple angles- every image corresponding to the group will have the same tag.
+- **Build annotation ready CSV**: --build-annotation-csv", if present a CSV file for disease index annotation will be generated.
+- **Generate series id, group plants by close timestamp**: --generate-series-id", if present each row of the final csv will be annotated to tag all photos of each plant taking in an amount of time. When every plant is captured multiple times each time -for example, multiple angles- every image corresponding to the group will have the same tag.
 - **Series id delta**: --series-id-delta", Images of an item taken within minutes of time delta will have the same series id".
 
 ### Final notes
