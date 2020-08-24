@@ -50,10 +50,10 @@
           //
           // Super crop
           "--stored-state",
-          "C:\\Users\\fmavianemac\\Documents\\ipso_phen_data\\pipeline_state\\super_crop.json"
+          "C:\\Users\\fmavianemac\\Documents\\ipso_phen_data\\pipeline_state\\super_crop.json",
           // "--build-annotation-csv",
-          // "--thread-count",
-          // "1"
+          "--thread-count",
+          "1"
         ]
       }
     }
