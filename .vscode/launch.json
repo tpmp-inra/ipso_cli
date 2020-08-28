@@ -20,38 +20,8 @@
       "cwd": "${workspaceFolder}",
       "windows": {
         "args": [
-          // ATSYS
-          // "--stored-state",
-          // "C:\\Users\\fmavianemac\\Documents\\ipso_phen_data\\pipeline_state\\25ac_atsys2_2003.json",
-          // "--thread-count",
-          // "1",
-          // "--overwrite"
-          //
-          // HELIASEN
-          // "--image",
-          // "C:\\Users\\fmavianemac\\Pictures\\ipso_phen_cache\\heliasen\\18hp01\\18HP01U02-CAM11-20180702094650.bmp",
-          // "--script",
-          // "C:\\Users\\fmavianemac\\Documents\\ipso_phen_data\\pipelines\\heliasen_qc_v2.json",
-          // "--output-folder",
-          // "test_output",
-          // "--csv-file-name",
-          // "test_file",
-          // "--overwrite"
-          //
-          // MAPPI
-          // "--stored-state",
-          // "C:\\Users\\fmavianemac\\Documents\\ipso_phen_data\\pipeline_state\\mappi5.json",
-          // "--generate-series-id",
-          // "--series-id-delta",
-          // "20",
-          // "--build-annotation-csv",
-          // "--thread-count",
-          // "3"
-          //
-          // Super crop
           "--stored-state",
-          "C:\\Users\\fmavianemac\\Documents\\ipso_phen_data\\pipeline_state\\super_crop.json",
-          // "--build-annotation-csv",
+          "C:\\Users\\fmavianemac\\Documents\\ipso_phen_data\\pipeline_state\\28as_crispr_2006_sample.json",
           "--thread-count",
           "1"
         ]
