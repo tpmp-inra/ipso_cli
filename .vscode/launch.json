@@ -21,7 +21,7 @@
       "windows": {
         "args": [
           "--stored-state",
-          "C:\\Users\\fmavianemac\\Documents\\ipso_phen_data\\pipeline_state\\28as_crispr_2006_sample.json",
+          "C:\\Users\\fmavianemac\\Documents\\ipso_phen_data\\pipeline_state\\29ac_atsys4_2007_errors.json",
           "--thread-count",
           "1"
         ]
