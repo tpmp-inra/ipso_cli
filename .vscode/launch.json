@@ -21,7 +21,7 @@
       "windows": {
         "args": [
           "--stored-state",
-          "C:\\Users\\fmavianemac\\Documents\\ipso_phen_data\\pipeline_state\\25ac_atsys2_2003_v2.json",
+          "C:\\Users\\fmavianemac\\Documents\\ipso_phen_data\\pipeline_state\\30as_diosco_2008.json",
           "--thread-count",
           "1"
         ]
