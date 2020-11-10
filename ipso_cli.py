@@ -56,7 +56,11 @@ def exec_cli():
         dest="script",
     )
     parser.add_argument(
-        "--image", required=False, help="Image to be processed", default=None, dest="image"
+        "--image",
+        required=False,
+        help="Image to be processed",
+        default=None,
+        dest="image",
     )
     parser.add_argument(
         "--image-list",
@@ -118,6 +122,24 @@ def exec_cli():
         dest="series_id_time_delta",
     )
 
+    parser.add_argument(
+        "--database",
+        required=False,
+        help="Target database",
+        default=None,
+        type=str,
+        dest="database",
+    )
+
+    parser.add_argument(
+        "--experiment",
+        required=False,
+        help="Target experiment",
+        default=None,
+        type=str,
+        dest="experiment",
+    )
+
     args = vars(parser.parse_args())
     logger.info("Retrieved parameters")
     for k, v in args.items():
@@ -132,5 +154,7 @@ if __name__ == "__main__":
         logger.info("Closing IPSO CLI")
     else:
         logger.error("Closing IPSO CLI")
-    logger.info("_________________________________________________________________________")
+    logger.info(
+        "_________________________________________________________________________"
+    )
     sys.exit(res)

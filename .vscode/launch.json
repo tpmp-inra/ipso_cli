@@ -21,9 +21,18 @@
       "windows": {
         "args": [
           "--stored-state",
-          "C:\\Users\\fmavianemac\\Documents\\ipso_phen_data\\pipeline_state\\30as_diosco_2008.json",
+          "C:\\Users\\fmavianemac\\Documents\\ipso_phen\\pipeline_state\\32ac_atsys5_2009.json",
           "--thread-count",
           "1"
+        ]
+      },
+      "linux": {        
+        "args": [
+          "--script", "./pipelines/imean_phenopsis_v7.json",
+          "--thread-count", "3",
+          "--output-folder", "output",
+          "--database", "phenopsis",
+          "--experiment", "32AC_ATSYS5_2009"
         ]
       }
     }

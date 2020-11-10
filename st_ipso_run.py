@@ -27,7 +27,7 @@ _max_width_()
 st.title("IPSO runner - streamlit version")
 
 STORED_STATES_PATH = os.path.join(
-    "C:/", "Users", "fmavianemac", "Documents", "ipso_phen_data", "pipeline_state", ""
+    "C:/", "Users", "fmavianemac", "Documents", "ipso_phen", "pipeline_state", ""
 )
 
 
@@ -56,7 +56,9 @@ def error_callback(error_level, error_message):
 
 def main():
     stored_state = st.selectbox(
-        label="Select stored state", options=get_stored_states(), index=0,
+        label="Select stored state",
+        options=get_stored_states(),
+        index=0,
     )
 
     params = {}
@@ -82,13 +84,16 @@ def main():
             label="CSV file name:", value=stored_state.get("csv_file_name", "")
         )
         params["overwrite"] = st.checkbox(
-            label="Overwrite existing data", value=stored_state.get("overwrite", False),
+            label="Overwrite existing data",
+            value=stored_state.get("overwrite", False),
         )
         params["build_annotation_csv"] = st.checkbox(
-            label="Build annotation CSV", value=stored_state.get("build_annotation_csv", False),
+            label="Build annotation CSV",
+            value=stored_state.get("build_annotation_csv", False),
         )
         params["generate_series_id"] = st.checkbox(
-            label="Generate series IDs", value=stored_state.get("generate_series_id", False),
+            label="Generate series IDs",
+            value=stored_state.get("generate_series_id", False),
         )
         if params["generate_series_id"] is True:
             params["series_id_time_delta"] = st.number_input(
