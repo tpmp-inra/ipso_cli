@@ -1,23 +1,25 @@
-import csv
 import multiprocessing as mp
 import os
 from collections import Counter, defaultdict
 from collections import namedtuple
 import logging
+from time import sleep
+from timeit import default_timer as timer
 from typing import Union
 
 import pandas as pd
 from tqdm import tqdm
 
-from ipapi.class_pipelines.ip_factory import ipo_factory
 from ipapi.file_handlers.fh_base import file_handler_factory
 from ipapi.tools.comand_line_wrapper import ArgWrapper
-from ipapi.tools.common_functions import time_method, force_directories
+from ipapi.tools.common_functions import time_method, force_directories, format_time
 from ipapi.tools.image_list import ImageList
 
 logger = logging.getLogger(__name__)
 
-WorkerResult = namedtuple("WorkerResult", "result, text_result, name, message")
+
+def _dummy_worker(args):
+    return args
 
 
 def _pipeline_worker(arg):
@@ -35,6 +37,7 @@ def _pipeline_worker(arg):
     # Extract parameters
     file_path, options, script, db = arg
 
+    start_time = timer()
     try:
         bool_res = script.execute(
             src_image=file_path if isinstance(file_path, str) else file_path[0],
@@ -51,12 +54,21 @@ def _pipeline_worker(arg):
             call_back=None,
         )
     except Exception as e:
-        return WorkerResult(False, "", file_path, repr(e))
+        return {
+            "result": False,
+            "result_as_text": "",
+            "image_name": file_path,
+            "error_message": repr(e),
+            "time_spent": format_time(timer() - start_time),
+        }
     else:
-        if script.wrapper is not None:
-            return WorkerResult(bool_res, script.text_result, str(script.wrapper), "")
-        else:
-            return WorkerResult(bool_res, script.text_result, "Unknown", "")
+        return {
+            "result": bool_res,
+            "result_as_text": script.text_result,
+            "image_name": "Unknown" if script.wrapper is None else str(script.wrapper),
+            "error_message": "",
+            "time_spent": format_time(timer() - start_time),
+        }
 
 
 class PipelineProcessor:
@@ -77,9 +89,10 @@ class PipelineProcessor:
     - threshold_only: if true no analysis will be performed after threshold, required=False, default=False
     """
 
-    def __init__(self, **kwargs):
+    def __init__(self, database, **kwargs):
         """ Initializes command line wrapper an properties """
         self.options = ArgWrapper(**kwargs)
+        self._target_database = database
         self._process_errors = 0
         self.accepted_files = []
         self._last_signature = ""
@@ -91,7 +104,6 @@ class PipelineProcessor:
         self._tqdm = None
         self._progress_total = 0
         self._progress_step = 0
-        self._target_database = None
 
     def build_files_list(self, src_path: str, flatten_list=True, **kwargs):
         """Build a list containing all the files that will be parsed
@@ -123,55 +135,72 @@ class PipelineProcessor:
         if not os.path.exists(self.options.dst_path):
             os.makedirs(self.options.dst_path)
 
-    def handle_result(self, wrapper_res, wrapper_index, total):
+    def handle_result(self, wrapper_res: dict, wrapper_index, total):
         if not wrapper_res:
             logger.error("Process error - UNKNOWN ERROR")
             self.report_error(logging.ERROR, "Process error - UNKNOWN ERROR")
             self._process_errors += 1
         else:
-            if self._target_database is not None and not wrapper_res.text_result:
-                self._target_database.log_connexion_state()
             spaces_ = len(str(total))
             msg = (
-                f'{"OK" if wrapper_res.result is True else "FAIL"}'
+                f"{(wrapper_index + 1):{spaces_}d}/{total}"
                 + " - "
-                + f"{(wrapper_index + 1):{spaces_}d}/{total} >>> "
-                + wrapper_res.name
-                + f" - {wrapper_res.message}"
-                if wrapper_res.message
-                else ""
+                + (
+                    wrapper_res["result_as_text"]
+                    if wrapper_res["result_as_text"]
+                    else f'{"OK" if wrapper_res["result"] is True else "FAIL"}'
+                )
+                + " >>> "
+                + wrapper_res["image_name"]
+                + (
+                    f" - {wrapper_res['error_message']}"
+                    if wrapper_res["error_message"]
+                    else ""
+                )
             )
             logger.info(msg)
-            if wrapper_res.result is not True:
+            if wrapper_res["result"] is not True:
                 self.report_error(logging.ERROR, msg)
-            if wrapper_res.result is not True:
+            if wrapper_res["result"] is not True:
                 self._process_errors += 1
         self.update_progress()
 
-    def yield_handle_result(self, wrapper_res, wrapper_index, total):
+    def yield_handle_result(self, wrapper_res: dict, wrapper_index, total):
         if not wrapper_res:
-            logger.error("Process error - UNKNOWN ERROR")
+            msg = "Process error - UNKNOWN ERROR"
+            logger.error(msg)
             self.report_error(logging.ERROR, "Process error - UNKNOWN ERROR")
             self._process_errors += 1
         else:
-            if self._target_database is not None and not wrapper_res.text_result:
-                self._target_database.log_connexion_state()
             spaces_ = len(str(total))
             msg = (
-                f'{"OK" if wrapper_res.result is True else "FAIL"}'
+                f"{(wrapper_index + 1):{spaces_}d}/{total}"
                 + " - "
-                + f"{(wrapper_index + 1):{spaces_}d}/{total} >>> "
-                + wrapper_res.name
-                + f" - {wrapper_res.message}"
-                if wrapper_res.message
-                else ""
+                + (
+                    wrapper_res["result_as_text"]
+                    if wrapper_res["result_as_text"]
+                    else f'{"OK" if wrapper_res["result"] is True else "FAIL"}'
+                )
+                + "<br>"
+                + wrapper_res["image_name"]
+                + (
+                    f"<br> {wrapper_res['error_message']}"
+                    if wrapper_res["error_message"]
+                    else ""
+                )
+                + "<br>"
+                + f"Image processed in: {wrapper_res['time_spent']}"
             )
             logger.info(msg)
-            if wrapper_res.result is not True:
+            if wrapper_res["result"] is not True:
                 self.report_error(logging.ERROR, msg)
-            if wrapper_res.result is not True:
+            if wrapper_res["result"] is not True:
                 self._process_errors += 1
-        yield {"step": self._progress_step, "total": self._progress_total}
+        yield {
+            "step": self._progress_step,
+            "total": self._progress_total,
+            "message": msg,
+        }
         self._progress_step += 1
 
     def init_progress(self, total: int, desc: str = "", yield_mode: bool = False) -> None:
@@ -216,6 +245,19 @@ class PipelineProcessor:
         else:
             return self.abort_callback()
 
+    def grab_files_from_data_base(self, experiment, **kwargs):
+        files = self._target_database.query(
+            command="SELECT",
+            columns="FilePath",
+            additional="ORDER BY date_time ASC",
+            experiment=experiment,
+            **kwargs,
+        )
+        if files is not None:
+            self.accepted_files = [f[0] for f in files]
+        else:
+            self.accepted_files = []
+
     def group_by_series(self, time_delta: int):
         # Build dictionary
         self.init_progress(
@@ -224,7 +266,7 @@ class PipelineProcessor:
         plants_ = defaultdict(list)
         for item in self.accepted_files:
             self.update_progress()
-            fh = file_handler_factory(item)
+            fh = file_handler_factory(item, self._target_database)
             plants_[fh.plant].append(fh)
 
         # Sort all lists by timestamp
@@ -269,7 +311,7 @@ class PipelineProcessor:
         total = len(self.accepted_files)
         for i, item in enumerate(self.accepted_files):
             yield {"step": i, "total": total}
-            fh = file_handler_factory(item)
+            fh = file_handler_factory(item, self._target_database)
             plants_[fh.plant].append(fh)
 
         self.close_progress()
@@ -436,7 +478,7 @@ class PipelineProcessor:
             yield {"step": 1, "total": 1}
         self.groups_to_process = self.accepted_files[:]
 
-    def process_groups(self, groups_list, target_database=None):
+    def process_groups(self, groups_list):
         # Build images and data
         if groups_list:
             force_directories(self.options.partials_path)
@@ -465,8 +507,8 @@ class PipelineProcessor:
                                 self.options,
                                 self.script,
                                 None
-                                if target_database is None
-                                else target_database.copy(),
+                                if self._target_database is None
+                                else self._target_database.copy(),
                             )
                             for fl in groups_list
                         ),
@@ -484,7 +526,9 @@ class PipelineProcessor:
                             fl,
                             self.options,
                             self.script,
-                            None if target_database is None else target_database.copy(),
+                            None
+                            if self._target_database is None
+                            else self._target_database.copy(),
                         ]
                     )
                     if self.check_abort():
@@ -494,7 +538,58 @@ class PipelineProcessor:
             self.close_progress()
             logger.info("   --- Files processed ---")
 
-    def yield_process_groups(self, groups_list, target_database=None):
+    def yield_test_process_groups(self, groups_list):
+        # Build images and data
+        if groups_list:
+            force_directories(self.options.partials_path)
+            logger.info(f"   --- Processing {len(groups_list)} files ---")
+            self.init_progress(
+                total=len(groups_list),
+                desc="Processing images",
+                yield_mode=True,
+            )
+
+            max_cores = min([10, mp.cpu_count()])
+            if isinstance(self.multi_thread, int):
+                num_cores = min(self.multi_thread, max_cores)
+            elif isinstance(self.multi_thread, bool):
+                if self.multi_thread:
+                    num_cores = max_cores
+                else:
+                    num_cores = 1
+            else:
+                num_cores = 1
+            if (num_cores > 1) and len(groups_list) > 1:
+                pool = mp.Pool(num_cores)
+                chunky_size_ = num_cores
+                total = len(groups_list)
+                for i, res in enumerate(
+                    pool.imap_unordered(
+                        _dummy_worker,
+                        ((fl) for fl in groups_list),
+                        chunky_size_,
+                    )
+                ):
+                    if self.check_abort():
+                        logger.info("User stopped process")
+                        break
+                    yield {"step": i, "total": total}
+                    logger.info(f"Test process (multi thread): {res}")
+                    sleep(0.1)
+            else:
+                total = len(groups_list)
+                for i, fl in enumerate(groups_list):
+                    if self.check_abort():
+                        logger.info("User stopped process")
+                        break
+                    yield {"step": i, "total": total}
+                    logger.info(f"Test process (single thread): {fl}")
+                    sleep(0.1)
+
+            self.close_progress()
+            logger.info("   --- Files processed ---")
+
+    def yield_process_groups(self, groups_list):
         # Build images and data
         if groups_list:
             force_directories(self.options.partials_path)
@@ -527,8 +622,8 @@ class PipelineProcessor:
                                 self.options,
                                 self.script,
                                 None
-                                if target_database is None
-                                else target_database.copy(),
+                                if self._target_database is None
+                                else self._target_database.copy(),
                             )
                             for fl in groups_list
                         ),
@@ -538,11 +633,10 @@ class PipelineProcessor:
                     if self.check_abort():
                         logger.info("User stopped process")
                         break
-                    yield from self.handle_result(
+                    yield from self.yield_handle_result(
                         res,
                         i,
                         len(groups_list),
-                        yield_mode=True,
                     )
             else:
                 for i, fl in enumerate(groups_list):
@@ -551,34 +645,31 @@ class PipelineProcessor:
                             fl,
                             self.options,
                             self.script,
-                            None if target_database is None else target_database.copy(),
+                            None
+                            if self._target_database is None
+                            else self._target_database.copy(),
                         ]
                     )
                     if self.check_abort():
                         logger.info("User stopped process")
                         break
-                    yield from self.handle_result(
+                    yield from self.yield_handle_result(
                         res,
                         i,
                         len(groups_list),
-                        yield_mode=True,
                     )
             self.close_progress()
             logger.info("   --- Files processed ---")
 
     @time_method
-    def run(self, target_database=None):
-        """Processes all files stored in file list
-
-        Keyword Arguments:
-            target_database {DbWrapper} -- Database holding images data (default: {None})
-        """
+    def run(self):
+        """Processes all files stored in file list"""
         if self.accepted_files:
             # build series
             files_to_process = self.prepare_groups(time_delta=20)
 
             # Build images and data
-            self.process_groups(files_to_process, target_database)
+            self.process_groups(files_to_process)
 
             # Build text merged file
             self.merge_result_files("raw_output_data.csv")

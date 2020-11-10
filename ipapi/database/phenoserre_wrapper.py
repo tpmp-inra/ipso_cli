@@ -151,9 +151,15 @@ def _query_phenoserre(query: str) -> pd.DataFrame:
     return pd.read_csv(StringIO(output))
 
 
-def get_exp_list() -> list:
+def get_phenoserre_exp_list() -> list:
     assert conf, "Unable to connect to phenoserre"
-    return sorted(_query_phenoserre(conf["exp_list_query"]).iloc[:, 0].to_list())
+    try:
+        exp_list = sorted(_query_phenoserre(conf["exp_list_query"]).iloc[:, 0].to_list())
+    except Exception as e:
+        logger.error("Unable to connect to Phenoserre")
+        return []
+    else:
+        return exp_list
 
 
 def get_exp_as_df(exp_name: str) -> pd.DataFrame:
@@ -179,7 +185,7 @@ def get_exp_as_df(exp_name: str) -> pd.DataFrame:
     dataframe["Plant"] = dataframe["plant"].str.lower()
     dataframe["cam_view_option"] = dataframe["cam_view_option"].str.lower()
     # Ensure datetime column is datetim
-    dataframe["date_time"] = pd.to_datetime(dataframe["date_time"])
+    dataframe["date_time"] = pd.to_datetime(dataframe["date_time"], utc=True)
     # Wrangle
     dataframe[["Camera", "view_option"]] = (
         dataframe["cam_view_option"].apply(_split_camera_label).apply(pd.Series)
@@ -199,7 +205,7 @@ def get_exp_as_df(exp_name: str) -> pd.DataFrame:
         + dataframe["view_option"]
         + ").png"
     )
-    dataframe["luid"] = (
+    dataframe["Luid"] = (
         dataframe["Experiment"]
         + "_"
         + dataframe["Plant"]
@@ -216,7 +222,7 @@ def get_exp_as_df(exp_name: str) -> pd.DataFrame:
 
     return dataframe[
         [
-            "luid",
+            "Luid",
             "Experiment",
             "Plant",
             "date_time",

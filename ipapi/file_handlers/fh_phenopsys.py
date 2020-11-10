@@ -1,41 +1,86 @@
 from datetime import datetime as dt
+import datetime
+import os
+
+import numpy as np
+import cv2
+import paramiko
 
 from ipapi.file_handlers.fh_base import FileHandlerBase
+import ipapi.base.ip_common as ipc
 
 
-class FileHandlerPhenopsys(FileHandlerBase):
+try:
+    from ipapi.database.db_connect_data import db_connect_data as dbc
+
+    conf = dbc.get("phenopsis", {})
+except Exception as e:
+    conf = {}
+
+import logging
+
+logger = logging.getLogger(__name__)
+
+
+class FileHandlerPhenopsis(FileHandlerBase):
     def __init__(self, **kwargs):
-        self._file_path = kwargs.get("file_path", "")
-        if self._file_path:
-            [
-                self._exp,
-                self._plant,
-                self._view_option,
-                date_time_str,
-                self._opaque,
-            ] = self.file_name_no_ext.split(";")
-            try:
-                self._date_time = dt.strptime(date_time_str, "%Y,%m,%d-%Hh%Mm%Ss")
-            except ValueError:
-                self._date_time = dt.strptime(date_time_str, "%Y%m%d-%Hh%Mm%Ss")
-            if "fluo-" in self._view_option.lower():
-                self._camera = "cf"
-                if self.is_cf_calc:
-                    self._view_option = "calc"
-                elif self.is_cf_csv:
-                    self._view_option = "csv"
-                elif self.is_cf_pim:
-                    self._view_option = "pim"
-                elif self.is_cf_raw:
-                    self._view_option = "raw"
-            else:
-                self._camera, self._view_option = self._view_option.split("-")
+        super().__init__(**kwargs)
 
-        self.update(**kwargs)
+        database = kwargs.get("database", None)
+        if conf and database is not None and database.db_info.target == "phenopsis":
+            self.db_linked = self.init_from_database(**kwargs)
+        else:
+            self.db_linked = False
+
+        if not self.db_linked:
+            self._file_path = kwargs.get("file_path", "")
+            self._database = kwargs.get("database", None)
+            self._linked_images = []
+            if self._file_path:
+                [
+                    self._exp,
+                    self._plant,
+                    self._view_option,
+                    date_time_str,
+                    self._opaque,
+                ] = self.file_name_no_ext.split(";")
+                try:
+                    self._date_time = dt.strptime(date_time_str, "%Y,%m,%d-%Hh%Mm%Ss")
+                except ValueError:
+                    self._date_time = dt.strptime(date_time_str, "%Y%m%d-%Hh%Mm%Ss")
+                if "fluo-" in self._view_option.lower():
+                    self._camera = "cf"
+                    if self.is_cf_calc:
+                        self._view_option = "calc"
+                    elif self.is_cf_csv:
+                        self._view_option = "csv"
+                    elif self.is_cf_pim:
+                        self._view_option = "pim"
+                    elif self.is_cf_raw:
+                        self._view_option = "raw"
+                else:
+                    self._camera, self._view_option = self._view_option.split("-")
+
+    def load_source_file(self):
+        if self.db_linked:
+            return self.load_from_database(
+                address=conf["address"],
+                port=conf["port"],
+                user=conf["user"],
+                pwd=conf["password"],
+            )
+        else:
+            return self.load_from_harddrive()
 
     @classmethod
-    def probe(cls, file_path):
-        if ";" in cls.extract_file_name(file_path):
+    def probe(cls, file_path, database):
+        if (
+            isinstance(file_path, str)
+            and os.path.isfile(file_path)
+            and (";" in cls.extract_file_name(file_path))
+        ):
+            return 100
+        elif conf and database is not None and database.db_info.target == "phenopsis":
             return 100
         else:
             return 0
@@ -63,3 +108,35 @@ class FileHandlerPhenopsys(FileHandlerBase):
     @property
     def is_vis(self):
         return False
+
+    @property
+    def channels_data(self):
+        return [
+            ci
+            for ci in ipc.create_channel_generator(
+                include_vis=True,
+                include_msp=True,
+            )
+        ]
+
+    @property
+    def linked_images(self):
+        if not self._linked_images:
+            current_date_time = self.date_time
+            ret = self._database.query(
+                command="SELECT",
+                columns="FilePath",
+                additional="ORDER BY date_time ASC",
+                experiment=self.experiment,
+                plant=self.plant,
+                camera=self.camera,
+                date_time=dict(
+                    operator="BETWEEN",
+                    date_min=current_date_time - datetime.timedelta(hours=1),
+                    date_max=current_date_time + datetime.timedelta(hours=1),
+                ),
+            )
+            self._linked_images = [
+                item[0] for item in ret if "sw755" not in item[0].lower()
+            ]
+        return self._linked_images
