@@ -29,7 +29,7 @@
       "linux": {        
         "args": [
           "--script", "./pipelines/imean_phenopsis_v7.json",
-          "--thread-count", "3",
+          "--thread-count", "1",
           "--output-folder", "output",
           "--database", "phenopsis",
           "--experiment", "32AC_ATSYS5_2009"
