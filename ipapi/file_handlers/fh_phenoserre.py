@@ -25,7 +25,7 @@ class FileHandlerPhenoserre(FileHandlerBase):
         self.db_linked = (
             conf
             and self._database is not None
-            and self._database.db_info.target == "phenopsis"
+            and self._database.db_info.target == "phenoserre"
         ) is True
         self._file_path = kwargs.get("file_path", "")
         self._linked_images = []
